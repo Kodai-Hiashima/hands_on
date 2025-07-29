@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on 提出用ハンズオン</title>
+    <link>https://kodai-hirashima.github.io/hands_on/posts/</link>
+    <description>Recent content in Posts on 提出用ハンズオン</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja-jp</language>
+    <lastBuildDate>Tue, 29 Jul 2025 15:43:59 +0900</lastBuildDate><atom:link href="https://kodai-hirashima.github.io/hands_on/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>サーバー応用演習前期まとめ</title>
+      <link>https://kodai-hirashima.github.io/hands_on/posts/%E3%82%B5%E3%83%BC%E3%83%90%E3%83%BC%E5%BF%9C%E7%94%A8%E6%BC%94%E7%BF%92%E5%89%8D%E6%9C%9F%E3%81%BE%E3%81%A8%E3%82%81/</link>
+      <pubDate>Tue, 29 Jul 2025 15:43:59 +0900</pubDate>
+      
+      <guid>https://kodai-hirashima.github.io/hands_on/posts/%E3%82%B5%E3%83%BC%E3%83%90%E3%83%BC%E5%BF%9C%E7%94%A8%E6%BC%94%E7%BF%92%E5%89%8D%E6%9C%9F%E3%81%BE%E3%81%A8%E3%82%81/</guid>
+      <description>重要そうなことだけピックアップしてみました。 ただし、Windowsの項目はかなり雑です。 Linuxインストール環境について ベアメタル ハードウ</description>
+    </item>
+    
+    <item>
+      <title>VPNハンズオン</title>
+      <link>https://kodai-hirashima.github.io/hands_on/posts/vpn%E3%83%8F%E3%83%B3%E3%82%BA%E3%82%AA%E3%83%B3/</link>
+      <pubDate>Fri, 25 Jul 2025 01:14:24 +0900</pubDate>
+      
+      <guid>https://kodai-hirashima.github.io/hands_on/posts/vpn%E3%83%8F%E3%83%B3%E3%82%BA%E3%82%AA%E3%83%B3/</guid>
+      <description>Linuxをインストールした中華ルーターでLAN内にアクセスしたいだけのハンズオンです。 まず最初にこのハンズオンはほぼ再現不可能です。 私とペ</description>
+    </item>
+    
+    <item>
+      <title>Arch Linuxインストールハンズオン</title>
+      <link>https://kodai-hirashima.github.io/hands_on/posts/arch_linux%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%83%8F%E3%83%B3%E3%82%BA%E3%82%AA%E3%83%B3/</link>
+      <pubDate>Fri, 13 Jun 2025 17:52:47 +0900</pubDate>
+      
+      <guid>https://kodai-hirashima.github.io/hands_on/posts/arch_linux%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%83%8F%E3%83%B3%E3%82%BA%E3%82%AA%E3%83%B3/</guid>
+      <description>Arch Linuxでデスクトップ環境であるKDEをインストールするまでのハンズオンです。 VirtualBox設定など こちらからダウンロードできます</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>サーバー応用演習前期まとめ - 提出用ハンズオン</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/hands_on/css/style.css">
+	
+
+	<link rel="shortcut icon" href="/hands_on/favicon.ico">
+		
+		
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/hands_on/" title="提出用ハンズオン" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">提出用ハンズオン</div>
+					
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">サーバー応用演習前期まとめ</h1>
+			
+		</header>
+		<div class="content post__content clearfix">
+			<p>重要そうなことだけピックアップしてみました。
+ただし、Windowsの項目はかなり雑です。</p>
+<hr>
+<h1 id="linuxインストール環境について">Linuxインストール環境について</h1>
+<ul>
+<li>
+<p><strong>ベアメタル</strong></p>
+<ul>
+<li>ハードウェア上に直接インストール</li>
+</ul>
+</li>
+<li>
+<p><strong>ハイパーバイザー</strong></p>
+<ul>
+<li>Type1：ハードウェア上にハイパーバイザー専用OSをインストールし、ハイパーバイザーで起動した仮想マシンにインストール、高速、ESXi(VMware)など</li>
+<li>Type2：ホストOS上にハイパーバイザーソフトウェアをインストールし、ハイパーバイザーで起動した仮想マシンにインストール、低速、VirtualBox(Oracle)など</li>
+</ul>
+</li>
+<li>
+<p><strong>クラウド(IaaS)</strong></p>
+<ul>
+<li>クラウドサービスで起動した仮想マシンにインストール、EC2(AWS)など</li>
+</ul>
+</li>
+</ul>
+<h1 id="ベアメタルとは">ベアメタルとは</h1>
+<p>ベアメタルとはまっさらな物理サーバーを指す</p>
+<ul>
+<li>
+<p><strong>メリット</strong></p>
+<ul>
+<li>物理サーバーに対して単一のOSを直接インストールするため、ハードウェアの処理能力を存分に引き出せる
+<ul>
+<li>仮想マシンはハードウェアとの間にハイパーバイザーの余計な処理を挟むため、ベアメタルほど高速に処理できない</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>デメリット</strong></p>
+<ul>
+<li>ハードウェアに余剰リソースが生まれてしまう
+<ul>
+<li>仮想マシンなら他の仮想マシンに余ったリソースを共有できる</li>
+</ul>
+</li>
+<li>スナップショットなど仮想マシンならではの機能が使えない</li>
+</ul>
+</li>
+</ul>
+<h2 id="デュアルブート">デュアルブート</h2>
+<ul>
+<li>一つのハードウェアに複数のOSをインストールすることをデュアルブートという</li>
+<li>デュアルブートする場合、ハードディスクを分割し、それぞれの領域(パーティション)に異なるOSをインストールする</li>
+</ul>
+<h2 id="ubuntuの基本操作">Ubuntuの基本操作</h2>
+<h3 id="ソフトのインストール">ソフトのインストール</h3>
+<p><code>apt-get</code>コマンドを使う</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt-get install apache2
+</span></span></code></pre></div><h3 id="起動など">起動など</h3>
+<p>起動や自動起動などは<code>systemctl</code>コマンドを使う</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo systemctl enable apache2 <span style="color:#75715e">#自動起動</span>
+</span></span><span style="display:flex;"><span>sudo systemctl start apache2 <span style="color:#75715e">#起動</span>
+</span></span></code></pre></div><hr>
+<h1 id="ハイパーバイザー">ハイパーバイザー</h1>
+<p>ハードウェアを真似（エミュレート）した仮想マシンを提供するソフトウェアのこと。
+Type 1とType 2がある。</p>
+<ul>
+<li>
+<p>OSはハードウェアに直接インストールする前提で作られている</p>
+</li>
+<li>
+<p>仮想マシンはハードウェアのマネをしてOSをだます</p>
+</li>
+<li>
+<p><strong>メリット</strong></p>
+<ul>
+<li>1台の物理サーバーに対して複数台の仮想マシンを起動できるため、余っているリソースを共有できてムダがない</li>
+<li>スナップショット、マイグレーションなど仮想マシン独自の機能が使用できる</li>
+</ul>
+</li>
+<li>
+<p><strong>デメリット</strong></p>
+<ul>
+<li>仮想マシンはハードウェアとの間にハイパーバイザーの余計な処理を挟むため、ベアメタルほど高速に処理できない</li>
+</ul>
+</li>
+</ul>
+<h2 id="type-1">Type 1</h2>
+<p>ハードウェア上にハイパーバイザー専用OSをインストールし、ハイパーバイザーで起動した仮想マシンにインストールする。
+また、Type2に比べて高速であるため、商用の仮想マシンはType1を使用する</p>
+<ul>
+<li>例
+<ul>
+<li>ESXi(VMware)</li>
+<li>Hyper-V(Microsoft)</li>
+<li>Xen(Citrix)</li>
+<li>KVM(OSS)</li>
+<li>OpenStack(OSS)</li>
+<li>Proxmox(OSS)</li>
+</ul>
+</li>
+</ul>
+<h2 id="type-2">Type 2</h2>
+<p>ホストOS上にハイパーバイザーソフトウェア(仮想化ソフト)をインストールし、ハイパーバイザーで起動した仮想マシンにインストール。
+Type1に比べて低速ではあるが、手軽に使用できるため検証環境などで使用される。</p>
+<ul>
+<li>例
+<ul>
+<li>VirtualBox(Oracle)</li>
+<li>VMware Workstation(VMware):Windows向け</li>
+<li>VMware Fusion(VMware):macOS向け</li>
+</ul>
+</li>
+</ul>
+<h1 id="virtualboxについて">VirtualBoxについて</h1>
+<p>Oracleが開発するType2のハイパーバイザー。
+Windows、macOS、Linuxなどにインストールし、VirtualBox上に仮想マシンを起動できる。</p>
+<ul>
+<li>機能
+<ul>
+<li>仮想マシン：ハードウェアエミュレート</li>
+<li>仮想ネットワーク：仮想的なネットワークを作れる、詳細は後述</li>
+<li>スナップショット：簡易的なバックアップ、ある時点のディスクイメージ</li>
+<li>共有フォルダ：ホストOSとゲストOS間で共有できるフォルダ
+<ul>
+<li>ホストOS：VirtualBoxをインストールする親のOS、上記例のWindows</li>
+<li>ゲストOS：仮想マシンにインストールする子のOS、上記例のLinux</li>
+</ul>
+</li>
+<li>クリップボード共有：ホストOSとゲストOS間でクリップボードを共有</li>
+<li>エクスポート・インポート：仮想マシンを簡単に他のホストOSに移植できる</li>
+</ul>
+</li>
+</ul>
+<h2 id="virtualboxネットワーク">VirtualBoxネットワーク</h2>
+<ul>
+<li>ブリッジ：ゲストOS⇔物理マシンの外、ゲストOSは直接通信</li>
+<li>NAT：ゲストOS⇔物理マシンの外、ゲストOSはNATされて通信</li>
+<li>ホストオンリー：ゲストOS⇔ホストOS、ゲストOS⇔ゲストOS</li>
+<li>内部ネットワーク：ゲストOS⇔ゲストOS</li>
+<li>その他のネットワーク
+<ul>
+<li>汎用ドライバー</li>
+<li>NATネットワーク</li>
+<li>クラウドネットワーク</li>
+</ul>
+</li>
+</ul>
+<h2 id="ブリッジ">ブリッジ</h2>
+<ul>
+<li>ゲストOS⇔物理マシンの外</li>
+<li>ゲストOSは仮想スイッチを通して直接通信
+<ul>
+<li>ゲストOSはホストOSと同じネットワークに直接接続</li>
+</ul>
+</li>
+</ul>
+<h2 id="nat">NAT</h2>
+<ul>
+<li>ゲストOS⇔物理マシンの外</li>
+<li>ゲストOSは仮想ルータでNATされて通信
+<ul>
+<li>NAT：ネットワークアドレス変換</li>
+<li>ゲストOSのIPアドレスはホストOSのIPアドレスに変換されて、物理マシンの外のホストと通信</li>
+</ul>
+</li>
+</ul>
+<h2 id="ホストオンリー">ホストオンリー</h2>
+<ul>
+<li>ゲストOS⇔ホストOS、ゲストOS⇔ゲストOS</li>
+<li>内部に閉じた通信に使用（物理マシンの外とは通信できない）</li>
+<li>ホストオンリーアダプターを複数作成することも可能</li>
+</ul>
+<h2 id="内部ネットワーク">内部ネットワーク</h2>
+<ul>
+<li>ゲストOS⇔ゲストOS</li>
+<li>内部に閉じた通信に使用（物理マシンの外とは通信できない）</li>
+<li>ホストOSからも切り離されたゲストOS同士の通信に使用</li>
+<li>VLANのように複数の内部ネットワークに分けることも可能</li>
+</ul>
+<hr>
+<h1 id="クラウドiaas">クラウド(IaaS)</h1>
+<p>リソースやそのリソースを元に作られたサービスをインターネット越しにレンタルして使用する</p>
+<ul>
+<li>
+<p>リソース：CPU、メモリ、ディスクなど</p>
+</li>
+<li>
+<p>サービス：仮想マシンサービス、DBサービスなど</p>
+</li>
+<li>
+<p><strong>メリット</strong></p>
+<ul>
+<li>その時に必要な分だけをレンタルすれば良いのでムダがない
+<ul>
+<li>急にアクセスが増えた場合すぐにリソースを増やせる</li>
+<li>急にアクセスが減った場合すぐにリソースを減らせる</li>
+</ul>
+</li>
+<li>初期投資を抑えられる</li>
+<li>運用保守の手間が省ける</li>
+</ul>
+</li>
+</ul>
+<h2 id="ec2">EC2</h2>
+<ul>
+<li>AWSの仮想マシンサービス</li>
+<li>仮想マシンのことをインスタンスと呼ぶ</li>
+<li>インスタンスタイプによってスペックが決まる
+<ul>
+<li>CPUの性能、個数、メモリの容量など</li>
+<li>CPU特化型、GPU特化型など</li>
+</ul>
+</li>
+<li>AMI(Amazon Machine Image)でOSやアプリケーションが決まる
+<ul>
+<li>Amazon Linux、Ubuntuなど</li>
+</ul>
+</li>
+<li>セキュリティグループ(ファイアウォール)で通信可能なIPやプロトコルを制限できる
+<ul>
+<li>SSHとHTTPのみなど</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h1 id="zabbix概要">Zabbix概要</h1>
+<h2 id="統合監視ソフト">統合監視ソフト</h2>
+<p>運用監視業務で使用するシステム全体の状態を監視し、可視化(グラフ化)するソフトのこと。
+代表的なものに<strong>Zabbix</strong>、Nagios、CloudWatch、Datadogなどがある。</p>
+<h2 id="zabbix">Zabbix</h2>
+<ul>
+<li>ラトビアで開発された<strong>オープンソース</strong>の統合監視ソフト</li>
+<li><strong>LAMP</strong>構成で動作する
+<ul>
+<li>L（Linux）、A（Apacheなど）、M（MySQL、MariaDBなど）、P（php）</li>
+</ul>
+</li>
+<li>サーバー構築後は<strong>ブラウザからGUI</strong>で操作する</li>
+<li>監視対象に<strong>Zabbixエージェント</strong>をインストールしていると高度な監視が可能
+<ul>
+<li>Zabbixサーバー：tcp/10051</li>
+<li>Zabbixエージェント：tcp/10050</li>
+</ul>
+</li>
+<li>ネットワーク機器などはエージェントレスで<strong>SNMP</strong>で監視可能</li>
+</ul>
+<hr>
+<h1 id="windwos-server">Windwos Server</h1>
+<h2 id="ドメインコントローラー">ドメインコントローラー</h2>
+<p>ネットワーク上のユーザーやコンピュータを管理する重要なサーバーです。</p>
+<h2 id="共有フォルダー">共有フォルダー</h2>
+<p>複数のコンピューターからアクセスできる設定が施されたストレージです。</p>
+<h2 id="グループポリシー">グループポリシー</h2>
+<p>Windowsのグループと組織単位（OU）</p>
+<ul>
+<li>
+<p>グループ：</p>
+<ul>
+<li>ユーザやサブグループのメンバーにファイルはフォルダへの「アクセス許可」を設定する</li>
+<li>ユーザやグループをまとめる</li>
+</ul>
+</li>
+<li>
+<p>組織単位（Oorganization Unit）</p>
+<ul>
+<li>メンバーとなるユーザやコンピュータに「システムの作業に関する制限」を割り当てるために使う</li>
+<li>ユーザやグループをまとめる</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>以上です。
+もっと良くしたいので、なにかあれば<a href="mailto:2301070@s.asojuku.ac.jp">2301070@s.asojuku.ac.jp</a>かTeamsなどで連絡お願いします。（とくにWindowsのところ）</p>
+<p>もしかしたらgithubでもできるかもしれない。</p>
+
+		</div>
+	</article>
+</main>
+
+
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2025 提出用ハンズオン.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/hands_on/js/menu.js"></script>
+</body>
+</html>

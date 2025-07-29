@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>VPN_ハンズオン - 提出用ハンズオン</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/hands_on/css/style.css">
+	
+
+	<link rel="shortcut icon" href="/hands_on/favicon.ico">
+		
+		
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/hands_on/" title="提出用ハンズオン" rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">提出用ハンズオン</div>
+					
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">VPN_ハンズオン</h1>
+			
+		</header>
+		<div class="content post__content clearfix">
+			<p>LInuxをインストールした中華ルーターでLAN内にアクセスしたいだけのハンズオンです。</p>
+<p>まず最初に<strong>このハンズオンはほぼ再現不可能</strong>です。</p>
+<p>私とペアになった人、あきらめてください。</p>
+<p>ごめんなさい。</p>
+<hr>
+<h1 id="使用したソフトやハードなど">使用したソフトやハードなど</h1>
+<p>今回使用したハードウェアは<a href="https://radxa.com/products/network-computer/e25/">Radxa E25</a>です。</p>
+<p>このハードウェアの特徴としては</p>
+<blockquote>
+<ol>
+<li>4コアのarm CPU</li>
+<li>2.5GのRJ45が2ポート</li>
+<li>eMMC 32GB、RAM 4GB</li>
+<li>後ろの3つのボタンみたいなのはダミー</li>
+<li>RJ45はLED付きだがなぜかオンの状態はオレンジのみしか光らない</li>
+</ol>
+</blockquote>
+<p>5はわかりにくいので画像載せておきます。</p>
+<p><img src="/hands_on/images/E25.jpg" alt="Radxa E25"></p>
+<p>小ささがわかりやすいと思います。
+なぜか筐体上あたりが緑のライン状に光ります。</p>
+<hr>
+<p>OSについてです。</p>
+<p>Radxa E25は<a href="https://www.armbian.com/radxa-e25/">armbian</a>に対応しているため今回はこちらをつかいました。
+ちなみに<code>Minimal/IOT images with Armbian Linux v6.6</code>の<code>Debian 12 (Bookworm)</code>しかうまく使えませんでした。
+実用上問題はないですが…。</p>
+<hr>
+<h1 id="単語について">単語について</h1>
+<p>これは授業のハンズオンですが、恐らくクラスの人のほとんどがなに言ってるかわからないと思います。
+特に必要そうな単語だけを簡単に解説します。
+これだけでも覚えて帰ってください。</p>
+<h2 id="vpn">VPN</h2>
+<p>これは仮想専用線とでもいったらいいのでしょうか。</p>
+<p>例えば自宅から会社のLAN内にアクセスしたい場合、会社と自宅に光ファイバーなどで接続する方法がありますが、費用が掛かり現実的ではありません。</p>
+<p><strong>そこで考えられたのがVPNです。</strong></p>
+<p>インターネット上に暗号化されたトンネルを作ることによって会社のLAN内などにアクセスするためのものです。</p>
+<h2 id="wireguard">WireGuard</h2>
+<p>これはVPNプロトコルです。</p>
+<p>従来のVPNプロトコルはコードが長く、また速度が遅いなどのデメリットがありましたが、これらを解決するために開発されたのがWireGuardです。</p>
+<h2 id="pppoe">PPPoE</h2>
+<p>PPP over Ethernetの略です。</p>
+<p>簡単に言えばEtherenetにPPPの認証機能を合わせたもので、パスワードを入力してくださいインターネット接続を行います。</p>
+<h2 id="ipoe">IPoE</h2>
+<p>IP over Ethernetの略です。</p>
+<p>PPPoEと違い、ルーターやアダプターなどの通信機器をユーザー側で用意する必要がありません。
+インターネットサービスプロバイダーを介し、直接インターネットに接続できる仕組みです。</p>
+<p>速度はPPPoEより速いですがポート開放が限定的です。</p>
+<h1 id="armbianのインストール">armbianのインストール</h1>
+<p>armbianをインストールします。</p>
+<p><a href="https://www.armbian.com/radxa-e25/">armbian公式ページ</a>からimgをダウンロードしてmicroSDカードに書き込みます。
+書き込みには<a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a>を使いました。</p>
+<p>armbianをインストールしたmicroSDカードをRadxa E25に指し、WiFiルーターなどにケーブルで接続します。
+WiFiルーターなどでRadxa E25のIPアドレスを確認してください。</p>
+<p>確認したIPアドレスに<code>root</code>でSSH接続します。パスワードは<code>1234</code>です。
+SSH接続した後、パスワードなどを聞かれますので任意で設定してください。</p>
+<p>一応これでも使えますが、せっかくeMMCがあるのでそちらにarmbianをインストールします。</p>
+<p>初期設定が終わるとコマンドが打てるようになるはずです。
+以下のコマンドを入力します。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo armbian-install
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>疑似GUIが出てくるので手順通り進めてください。
+詳しくは<a href="https://docs.armbian.com/User-Guide_Getting-Started/">こちら</a>も参照してください。</p>
+<h1 id="ip設定">IP設定</h1>
+<p>今回構築したいのは以下のようなネットワークです。
+なお、ISPはソフトバンク光です。</p>
+<pre tabindex="0"><code class="language-ascii" data-lang="ascii">-------
+|     |
+| P C |
+|     |
+-------
+   | VPN(WireGuard)
+   |
+INTERNET
+   |
+   |
+-------
+|     |
+| ONU |
+|     |
+-------
+   |
+   | 192.168.1.0/24(PPPoE)
+   |
+   | (enP2p1s0)
+-------
+|     |
+| R T |
+|     |
+-------
+   | 192.168.2.1(enp1s0)
+   |
+   | 192.168.2.2
+-------
+|     |
+| NAS |
+|     |
+-------
+</code></pre><p>RTが今回設定するデバイスです。</p>
+<p>まずこのネットワークはポート開放必須です。
+そのためIPoEではなくPPPoEでRTを接続する必要があります。</p>
+<p>またPPPoEは動的IPのためDDNSを使用することで利便性が向上します。
+今回は<a href="https://flokinet.is/">FlokiNet</a>でドメイン契約をし、<a href="https://1984.hosting/">1984</a>でDDNS完了しました。
+ここは好きなのを使うといいと思います。</p>
+<h2 id="1必要パッケージをインストールします">1.必要パッケージをインストールします。</h2>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt update
+</span></span><span style="display:flex;"><span>sudo apt install ppp pppoe pppoeconf vim
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="2etcppppeerspppoeを作成">2.<code>/etc/ppp/peers/pppoe</code>を作成</h2>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo vim /etc/ppp/peers/pppoe
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>enP2p1s0</code>はONUとつながるインターフェースです。
+以下のように設定します。</p>
+<pre tabindex="0"><code class="language-conf" data-lang="conf">plugin rp-pppoe.so enP2p1s0
+user abcdefg@sbb.ne.jp #プロバイダーから指定されているもの
+hide-password
+noauth
+defaultroute
+replacedefaultroute
+persist
+mtu 1492
+usepeerdns
+</code></pre><h2 id="3etcppppap-secretsの設定">3.<code>/etc/ppp/pap-secrets</code>の設定</h2>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo vim /etc/ppp/pap-secrets
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>以下のように設定します。</p>
+<pre tabindex="0"><code class="language-conf" data-lang="conf">abcdefg@sbb.ne.jp * password #プロバイダーから指定されているもの
+</code></pre><h2 id="4etcnetworkinterfacesの設定">4.<code>/etc/network/interfaces</code>の設定</h2>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo vim /etc/network/interfaces
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>以下のように設定します。</p>
+<pre tabindex="0"><code class="language-conf" data-lang="conf">auto enP2p1s0
+iface enP2p1s0 inet manual
+
+auto ppp0
+iface ppp0 inet ppp
+    provider pppoe
+
+auto enp1s0
+iface enp1s0 inet static
+    address 192.168.2.1
+    netmask 255.255.255.0
+</code></pre><blockquote>
+<p><strong>Point</strong>
+ここでenP2p1s0はONUからDHCPでIPを割り当てられ、PPPoEのIPv4よりも優先されることがあるため<code>manual</code>に設定する必要があります。
+PPPoEは<code>ppp0として定義します。 </code>replacedefaultroute<code>によりデフォルトルートをppp0に切り替えます。 </code>enp1s0`は固定IPなのでstaticとします。</p>
+</blockquote>
+<h2 id="5再起動">5.再起動</h2>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo systemctl restart networking
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>ここでRadxa E25をONUと繋いで電源を入れます。
+ここからの作業は<code>enp1s0</code>で設定した<code>192.168.2.1</code>でSSH接続します。</p>
+<hr>
+<p>これでPPPoE接続できるはずです。</p>
+<hr>
+<h1 id="ddnsの設定">DDNSの設定</h1>
+<p>crontabで定期的にDDNSを同期します。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo crontab -e
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>以下を追加します。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#f92672">*</span><span style="color:#960050;background-color:#1e0010">/5 * * * * /usr/bin/curl &#39;https://your.ddns.provider/update?token=xxxx&#39; &gt;/dev/null 2&gt;&amp;1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<p>これで5分置きにDDNSを同期できるようになりました。</p>
+<hr>
+<h1 id="sshの設定">SSHの設定</h1>
+<p>この状態だとPPPoEのIPからユーザー名とパスワードで総当たりすれば第三者でもSSH接続できます。
+ただ、今回は少々話がずれるので詳しい説明は省きます。</p>
+<p>詳しくは<a href="https://qiita.com/noraworld/items/2f72035544a04d88b9e3">こちら</a>で大体わかると思います。</p>
+<h1 id="wireguardの設定">WireGuardの設定</h1>
+<p>WireGuardでVPNを張ることによりLAN内にアクセスできるようにします。</p>
+<p>WireGuardなどのインストールをします。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt install wireguard iptables
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>サーバー側のキーペアを作成します。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo su -
+</span></span><span style="display:flex;"><span>cd /etc/wireguard/
+</span></span><span style="display:flex;"><span><span style="color:#f92672">(</span> umask <span style="color:#ae81ff">0077</span> <span style="color:#f92672">&amp;&amp;</span> wg genkey | tee privatekey | wg pubkey &gt; publickey <span style="color:#f92672">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>IPフォワードを有効にします。
+<code>/etc/sysctl.conf</code>の<code>net.ipv4.ip_forward = 1</code>をアンコメントします。</p>
+<p>設定をリロードします。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sysctl -p
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>/etc/wireguard/wg0.conf</code>を作成します。
+内容は以下の通りです。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>Interface<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>Address <span style="color:#f92672">=</span> 192.168.11.1/24
+</span></span><span style="display:flex;"><span>SaveConfig <span style="color:#f92672">=</span> true
+</span></span><span style="display:flex;"><span>PostUp <span style="color:#f92672">=</span> iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE
+</span></span><span style="display:flex;"><span>PostDown <span style="color:#f92672">=</span> iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o ppp0 -j MASQUERADE
+</span></span><span style="display:flex;"><span>ListenPort <span style="color:#f92672">=</span> <span style="color:#ae81ff">51820</span>
+</span></span><span style="display:flex;"><span>PrivateKey <span style="color:#f92672">=</span> YOUR_SERVER_PRIVATE KEY
+</span></span><span style="display:flex;"><span>MTU <span style="color:#f92672">=</span> <span style="color:#ae81ff">1370</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Peer<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>PublicKey <span style="color:#f92672">=</span> YOUR_CLIENT_PUBLIC_KEY
+</span></span><span style="display:flex;"><span>AllowedIPs <span style="color:#f92672">=</span> 192.168.11.2/32
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Peer<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>PublicKey <span style="color:#f92672">=</span> OTHER_CLIENT_PUBLIC_KEY
+</span></span><span style="display:flex;"><span>AllowedIPs <span style="color:#f92672">=</span> ...
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Point</strong>
+IPアドレスはLANのネットワークアドレスと被らなければ問題ありません。
+CLIENT PUBLIC KEYはクライアントで生成してください。
+PPPoEはMTUが小さいため、WireGuardはこれより小さくする必要があります。</p>
+</blockquote>
+<p>WireGuardを起動します。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>systemctl enable wg-quick@wg0 --now
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>クライアントの設定をします。</p>
+<pre tabindex="0"><code class="language-conf" data-lang="conf">[Interface]
+PrivateKey = YOU_CLIENT_PRIVATE_KEY
+Address = 192.168.11.2/24
+DNS = 8.8.8.8
+MTU = 1370
+
+[Peer]
+PublicKey = YOUR_SERVER_PUBLIC_KEY
+AllowedIPs =  0.0.0.0/0
+Endpoint = exmaple.com:51820 #DDNSで設定したもの
+PersistentKeepalive = 20
+</code></pre><hr>
+<p>これで接続できるはずです。</p>
+<p><a href="https://wiki.debian.org/WireGuard">こちら</a>も参考にしてください。</p>
+<hr>
+<p>#まとめ</p>
+<p>このハンズオンをここまで見てる人なんていないと思うのですが、個人的にはかなり勉強になりました。</p>
+<p>PPPoEとWireGuardの設定が特にはまりました。
+まず、PPPoEよりIPoEが優先して使われるところ、そしてWireGuardはiptablesをインストールしていなかったのと、MTUが大きすぎてうまくつながらないところが苦戦しました。
+VPSで構築するのとはまた全然違うというのがよくわかりました。</p>
+<p>このあとはfreedomboxでも買って、LAN内にNASでも作って、VPNでアクセスできるようにしようかな。</p>
+<hr>
+<p>以上</p>
+
+		</div>
+	</article>
+</main>
+
+
+
+
+			</div>
+			
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2025 提出用ハンズオン.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/hands_on/js/menu.js"></script>
+</body>
+</html>
